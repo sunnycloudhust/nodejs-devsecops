@@ -1,0 +1,116 @@
+name: DevSecOps Complete Pipeline
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  # ----------------------------------------------------
+  # STEP 1: BUILD
+  # ----------------------------------------------------
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies & Build
+        run: |
+          npm ci
+          # npm run build --if-present (Bật dòng này nếu dự án cần build)
+
+  # ----------------------------------------------------
+  # STEP 2: SAST (Static Application Security Testing)
+  # ----------------------------------------------------
+  sast_semgrep:
+    name: SAST - Semgrep Scan
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep
+        run: |
+          # Chạy Semgrep với bộ rule tối ưu cho CI và tự động fail nếu gặp lỗi High
+          docker run --rm -v "${{ github.workspace }}:/src" returntocorp/semgrep semgrep scan --config=auto --error
+
+  sast_sonarqube:
+    name: SAST - SonarQube Scan
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # SonarQube cần fetch-depth đầy đủ để phân tích git tốt hơn
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Cần cấu hình trong GitHub Secrets
+        # Lưu ý: Trên giao diện SonarCloud, bạn phải BẬT "Quality Gate Fail" cho GitHub PRs
+
+  # ----------------------------------------------------
+  # STEP 3: SCA (Software Composition Analysis)
+  # ----------------------------------------------------
+  sca_snyk:
+    name: SCA - Snyk Dependency Scan
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }} # Cần cấu hình trong GitHub Secrets
+        with:
+          # Quality Gate: Ép pipeline FAIL nếu có lỗ hổng từ mức High trở lên
+          args: --severity-threshold=high
+
+  # Note về Dependabot: Không cần viết code trong này. Bạn chỉ cần vào tab 
+  # Settings > Code security and analysis trên GitHub Repo rồi bấm "Enable" Dependabot lên.
+
+  # ----------------------------------------------------
+  # STEP 4: DAST (Dynamic Application Security Testing)
+  # ----------------------------------------------------
+  dast_owasp_zap:
+    name: DAST - OWASP ZAP Scan
+    # DAST chạy cuối cùng, sau khi Code và Thư viện đã tạm ổn
+    needs: [sast_semgrep, sast_sonarqube, sca_snyk] 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Start Application in Background
+        run: |
+          npm ci
+          npm start & # Khởi chạy app ở chế độ nền (background)
+          sleep 10 # Chờ 10 giây để đảm bảo app đã lên hoàn toàn
+
+      - name: OWASP ZAP Baseline Scan
+        uses: owasp/zap-baseline-action@v0.12.0
+        with:
+          # Quét trực tiếp vào ứng dụng đang chạy ở local
+          target: 'http://localhost:3000' 
+          # Thêm file cấu hình (nếu có) hoặc flag để điều chỉnh mức độ fail ứng với lỗi High
+          rules_file_name: '.zap/rules.tsv'
+          fail_action: 'true' # Ép build fail nếu ZAP tìm thấy lỗi nghiêm trọng theo rule

@@ -1,0 +1,67 @@
+name: DevSecOps Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+
+jobs:
+  security-pipeline:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout source code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    # =========================
+    # BUILD
+    # =========================
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run app test
+      run: npm test || true
+
+    # =========================
+    # SAST - SEMGREP
+    # =========================
+
+    - name: Run Semgrep Scan
+      uses: returntocorp/semgrep-action@v1
+      with:
+        config: "p/javascript"
+
+    # =========================
+    # SCA - NPM AUDIT
+    # =========================
+
+    - name: Run npm audit
+      run: npm audit --audit-level=high || true
+
+    # =========================
+    # START APP
+    # =========================
+
+    - name: Start application
+      run: |
+        node index.js &
+        sleep 15
+
+    # =========================
+    # DAST - OWASP ZAP
+    # =========================
+
+    - name: OWASP ZAP Baseline Scan
+      uses: zaproxy/action-baseline@v0.12.0
+      with:
+        target: "http://localhost:3000"

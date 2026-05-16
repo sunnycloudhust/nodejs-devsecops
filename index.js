@@ -5,8 +5,15 @@ const wikip = require('wiki-infobox-parser');
 const cookieParser = require('cookie-parser');
 const csrf = require('csurf');
 const app = express();
+app.disable('x-powered-by'); //fix bug 
 app.use(cookieParser());
-app.use(csrf({ cookie: true }));
+app.use(csrf({ 
+    cookie: {
+        key: '_csrf',
+        secure: true,   // [QUAN TRỌNG]: Ép buộc chỉ truyền cookie qua HTTPS
+        httpOnly: true  // [NÊN THÊM]: Chặn JavaScript đọc cookie này (chống lỗi XSS)
+    } 
+}));
 // this is the part for the bug fix
 //ejs
 app.set("view engine", 'ejs');

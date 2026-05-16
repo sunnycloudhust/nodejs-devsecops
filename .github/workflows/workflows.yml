@@ -110,7 +110,7 @@ jobs:
           sleep 10 # Chờ 10 giây để đảm bảo app đã lên hoàn toàn
 
       - name: OWASP ZAP Baseline Scan
-        uses: owasp/zap-baseline-action@v0.12.0
+        uses: zaproxy/action-baseline@v0.14.0
         with:
           # Quét trực tiếp vào ứng dụng đang chạy ở local
           target: 'http://localhost:3000' 

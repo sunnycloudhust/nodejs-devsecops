@@ -26,7 +26,7 @@ jobs:
       - name: Install Dependencies & Build
         run: |
           npm ci
-          # npm run build --if-present (Bật dòng này nếu dự án cần build)
+          npm run build --if-present 
 
   # ----------------------------------------------------
   # STEP 2: SAST (Static Application Security Testing)

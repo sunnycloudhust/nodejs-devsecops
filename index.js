@@ -1,8 +1,13 @@
 const express = require('express');
-const app = express();
 const request = require('request');
 const wikip = require('wiki-infobox-parser');
-
+###########fix##########
+const cookieParser = require('cookie-parser');
+const csrf = require('csurf');
+const app = express();
+app.use(cookieParser());
+app.use(csrf({ cookie: true }));
+########################
 //ejs
 app.set("view engine", 'ejs');
 
@@ -31,8 +36,8 @@ app.get('/index', (req,response) =>{
         if(err) {
             response.redirect('404');
         }
-            result = JSON.parse(body);
-            x = result[3][0];
+            const result = JSON.parse(body);              #fix
+            let x = result[3][0];                         #sonarqube_smell_code_fix
             x = x.substring(30, x.length); 
             //get wikip json
             wikip(x , (err, final) => {

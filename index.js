@@ -1,7 +1,6 @@
 const express = require('express');
 const request = require('request');
 const wikip = require('wiki-infobox-parser');
-// this is the part where i fix 
 const cookieParser = require('cookie-parser');
 const csrf = require('csurf');
 const app = express();
@@ -14,7 +13,6 @@ app.use(csrf({
         httpOnly: true  // [NÊN THÊM]: Chặn JavaScript đọc cookie này (chống lỗi XSS)
     } 
 }));
-// this is the part for the bug fix
 //ejs
 app.set("view engine", 'ejs');
 

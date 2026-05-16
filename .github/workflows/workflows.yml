@@ -52,14 +52,18 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # SonarQube cần fetch-depth đầy đủ để phân tích git tốt hơn
+          fetch-depth: 0  
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Cần cấu hình trong GitHub Secrets
-        # Lưu ý: Trên giao diện SonarCloud, bạn phải BẬT "Quality Gate Fail" cho GitHub PRs
+        with:
+          args: >
+            -Dsonar.organization=sunnycloudhust
+            -Dsonar.projectKey=sunnycloudhust_nodejs-devsecops
+            -Dsonar.qualitygate.wait=true
 
   # ----------------------------------------------------
   # STEP 3: SCA (Software Composition Analysis)
@@ -80,8 +84,6 @@ jobs:
           # Quality Gate: Ép pipeline FAIL nếu có lỗ hổng từ mức High trở lên
           args: --severity-threshold=high
 
-  # Note về Dependabot: Không cần viết code trong này. Bạn chỉ cần vào tab 
-  # Settings > Code security and analysis trên GitHub Repo rồi bấm "Enable" Dependabot lên.
 
   # ----------------------------------------------------
   # STEP 4: DAST (Dynamic Application Security Testing)

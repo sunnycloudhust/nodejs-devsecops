@@ -1,13 +1,13 @@
 const express = require('express');
 const request = require('request');
 const wikip = require('wiki-infobox-parser');
-###########fix##########
+// this is the part where i fix 
 const cookieParser = require('cookie-parser');
 const csrf = require('csurf');
 const app = express();
 app.use(cookieParser());
 app.use(csrf({ cookie: true }));
-########################
+// this is the part for the bug fix
 //ejs
 app.set("view engine", 'ejs');
 
@@ -36,8 +36,8 @@ app.get('/index', (req,response) =>{
         if(err) {
             response.redirect('404');
         }
-            const result = JSON.parse(body);              #fix
-            let x = result[3][0];                         #sonarqube_smell_code_fix
+            const result = JSON.parse(body);              //fix
+            let x = result[3][0];                         //sonarqube_smell_code_fix
             x = x.substring(30, x.length); 
             //get wikip json
             wikip(x , (err, final) => {

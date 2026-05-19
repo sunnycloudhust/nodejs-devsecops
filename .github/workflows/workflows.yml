@@ -89,7 +89,6 @@ jobs:
   # ----------------------------------------------------
   dast_owasp_zap:
     name: DAST - OWASP ZAP Scan
-    # DAST chạy cuối cùng, sau khi Code và Thư viện đã tạm ổn
     needs: [sast_semgrep, sast_sonarqube, sca_snyk] 
     runs-on: ubuntu-latest
     steps:

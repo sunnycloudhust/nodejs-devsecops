@@ -42,7 +42,6 @@ jobs:
 
       - name: Run Semgrep
         run: |
-          # Chạy Semgrep với bộ rule tối ưu cho CI và tự động fail nếu gặp lỗi High
           docker run --rm -v "${{ github.workspace }}:/src" returntocorp/semgrep semgrep scan --config=auto --error
 
   sast_sonarqube:
@@ -59,7 +58,7 @@ jobs:
         uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Cần cấu hình trong GitHub Secrets
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} 
         with:
           args: >
             -Dsonar.organization=sunnycloudhust
@@ -80,9 +79,8 @@ jobs:
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/node@master
         env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }} # Cần cấu hình trong GitHub Secrets
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }} 
         with:
-          # Quality Gate: Ép pipeline FAIL nếu có lỗ hổng từ mức High trở lên
           args: --severity-threshold=high
 
 
@@ -106,14 +104,12 @@ jobs:
       - name: Start Application in Background
         run: |
           npm ci
-          npm start & # Khởi chạy app ở chế độ nền (background)
-          sleep 10 # Chờ 10 giây để đảm bảo app đã lên hoàn toàn
+          npm start & 
+          sleep 10 
 
       - name: OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.14.0
         with:
-          # Quét trực tiếp vào ứng dụng đang chạy ở local
           target: 'http://localhost:3000' 
-          # Thêm file cấu hình (nếu có) hoặc flag để điều chỉnh mức độ fail ứng với lỗi High
           rules_file_name: '.zap/rules.tsv'
-          fail_action: 'true' # Ép build fail nếu ZAP tìm thấy lỗi nghiêm trọng theo rule
+          fail_action: 'true' 

@@ -4,6 +4,8 @@ const wikip = require('wiki-infobox-parser');
 const cookieParser = require('cookie-parser');
 const csurf = require('csurf'); 
 const app = express();
+app.use(helmet());
+app.disable('x-powered-by');
 app.use(cookieParser());
 // Kiểm tra xem server có đang chạy trên môi trường thực tế (production) không
 const isProduction = process.env.NODE_ENV === 'production';

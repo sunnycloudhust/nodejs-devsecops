@@ -110,8 +110,8 @@ jobs:
         run: |
           npm ci
           npm start & 
-          npx wait-on http://localhost:3000 
-
+          npx --yes wait-on@7.2.0 --ignore-scripts http://localhost:3000
+          
       - name: OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.14.0
         with:

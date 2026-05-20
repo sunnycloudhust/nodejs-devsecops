@@ -2,7 +2,11 @@ const express = require('express');
 const app = express();
 const request = require('request');
 const wikip = require('wiki-infobox-parser');
-
+//fix the bug recommended by semgrep
+const cookieParser = require('cookie-parser');
+const csrf = require('csurf');
+app.use(cookieParser());
+app.use(csrf({ cookie: true }));
 //ejs
 app.set("view engine", 'ejs');
 

@@ -2,9 +2,9 @@ FROM node:20-alpine
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts
 
-COPY --chown=node:node . .
+COPY --chown=node:node index.js ./
 
 USER node
 

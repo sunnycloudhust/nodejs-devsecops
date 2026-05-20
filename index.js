@@ -5,7 +5,16 @@ const cookieParser = require('cookie-parser');
 const csurf = require('csurf'); 
 const app = express();
 app.use(cookieParser());
-const csrfProtection = csurf({ cookie: true });
+// Kiểm tra xem server có đang chạy trên môi trường thực tế (production) không
+const isProduction = process.env.NODE_ENV === 'production';
+
+const csrfProtection = csurf({ 
+    cookie: { 
+        secure: isProduction, // Bật cờ an toàn HTTPS khi deploy lên server thật
+        httpOnly: true,       // Ngăn hacker dùng mã độc JavaScript (XSS) để đọc trộm cookie
+        sameSite: 'strict'    // Quy định cookie chỉ được gửi từ chính domain của bạn
+    } 
+});
 app.use(csrfProtection);
 
 //ejs

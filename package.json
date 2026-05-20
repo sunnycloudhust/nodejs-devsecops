@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -21,10 +22,15 @@
     "cookie-parser": "^1.4.7",
     "csrf-sync": "^4.2.1",
     "ejs": "^3.1.10",
-    "express": "^4.17.3",
+    "express": "^4.22.0",
     "node-fetch": "^2.6.7",
-    "nodemon": "^2.0.20",
-    "request": "^2.88.2",
     "wiki-infobox-parser": "^0.1.11"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  },
+  "overrides": {
+    "brace-expansion": "^2.0.3",
+    "minimatch": "^5.1.7"
   }
 }

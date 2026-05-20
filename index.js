@@ -3,6 +3,7 @@ const request = require('request');
 const wikip = require('wiki-infobox-parser');
 const cookieParser = require('cookie-parser');
 const csurf = require('csurf'); 
+const helmet = require('helmet');
 const app = express();
 app.use(helmet());
 app.disable('x-powered-by');

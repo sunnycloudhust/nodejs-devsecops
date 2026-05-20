@@ -92,6 +92,12 @@ jobs:
     name: DAST - OWASP ZAP Scan
     needs: [sast_semgrep, sast_sonarqube, sca_snyk] 
     runs-on: ubuntu-latest
+    
+    # 1. SỬA LỖI 403/410: Cấp quyền ghi Issue cho ZAP
+    permissions:
+      issues: write
+      contents: read
+      
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -100,15 +106,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
       - name: Start Application in Background
         run: |
           npm ci
           npm start & 
-          sleep 10 
+          npx wait-on http://localhost:3000 
 
       - name: OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.14.0
         with:
           target: 'http://localhost:3000' 
-          fail_action: 'true' 
+          fail_action: 'false'

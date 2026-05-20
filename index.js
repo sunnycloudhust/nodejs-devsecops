@@ -1,14 +1,20 @@
 const express = require('express');
-const app = express();
 const request = require('request');
 const wikip = require('wiki-infobox-parser');
+const cookieParser = require('cookie-parser');
+const csurf = require('csurf'); 
+const app = express();
+app.use(cookieParser());
+const csrfProtection = csurf({ cookie: true });
+app.use(csrfProtection);
 
 //ejs
 app.set("view engine", 'ejs');
 
 //routes
 app.get('/', (req,res) =>{
-    res.render('index');
+    // Truyền csrfToken vào view để gắn vào các form (nếu có)
+    res.render('index', { csrfToken: req.csrfToken() });
 });
 
 app.get('/index', (req,response) =>{

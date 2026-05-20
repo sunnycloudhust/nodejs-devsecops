@@ -1,9 +1,13 @@
-FROM node
+FROM node:20-alpine
 WORKDIR /app
 
-COPY . .
-EXPOSE 3000
-
 COPY package*.json ./
+RUN npm install
 
-ENTRYPOINT start npm
+COPY --chown=node:node . .
+
+USER node
+
+EXPOSE 3000
+CMD ["npm", "start"]
+
